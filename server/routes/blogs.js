@@ -2,6 +2,19 @@ const express = require('express');
 const router = express.Router();
 const Blog = require('../models/Blog');
 
+router.get('/featured', (req, res) => {
+    Blog
+        .find()
+        .where('featured')
+        .equals(true)
+        .then(blog => {
+            res.status(200).json(blog);
+        })
+        .catch(err => {
+            console.log(err);
+        });
+});
+
 router.get('/', (req, res) => {
     Blog
         .find()
@@ -16,18 +29,6 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
     Blog
         .findById(req.params.id)
-        .then(blog => {
-            res.status(200).json(blog);
-        })
-        .catch(err => {
-            console.log(err);
-        });
-});
-
-router.get('/featured', (req, res) => {
-    Blog
-        .find({$where: function() { return this.featured == true }})
-        //.where(this.featured == true )
         .then(blog => {
             res.status(200).json(blog);
         })
