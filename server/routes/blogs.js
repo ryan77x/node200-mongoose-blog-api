@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
+const Blog = require('../models/Blog');
 
 router.get('/', (req, res) => {
-    User
+    Blog
         .find()
-        .then(users => {
-            res.status(200).json(users);
+        .then(blogs => {
+            res.status(200).json(blogs);
         })
         .catch(err => {
             console.log(err);
@@ -14,10 +14,22 @@ router.get('/', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
-    User
+    Blog
         .findById(req.params.id)
-        .then(user => {
-            res.status(200).json(user);
+        .then(blog => {
+            res.status(200).json(blog);
+        })
+        .catch(err => {
+            console.log(err);
+        });
+});
+
+router.get('/featured', (req, res) => {
+    Blog
+        .find({$where: function() { return this.featured == true }})
+        //.where(this.featured == true )
+        .then(blog => {
+            res.status(200).json(blog);
         })
         .catch(err => {
             console.log(err);
@@ -25,11 +37,11 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-    const newUser = new User(req.body);
-    newUser.save()
+    const newBlog = new Blog(req.body);
+    newBlog.save()
     .then(result => {
         res.status(200).json(result);
-        console.log('User is saved');
+        console.log('Blog is saved');
     })
     .catch(err => {
         console.log(err);
@@ -37,11 +49,11 @@ router.post('/', (req, res) => {
 });
 
 router.put('/:id', (req, res) => {
-    User
+    Blog
         .findByIdAndUpdate(req.params.id, req.body)
         .then( (result)=> {
             res.status(200).json({"Status": "ok"});
-            console.log('User is updated');
+            console.log('Blog is updated');
         })
         .catch(err => {
             console.log(err);
@@ -49,11 +61,11 @@ router.put('/:id', (req, res) => {
 });
 
 router.delete('/:id', (req, res) => {
-    User
+    Blog
         .findByIdAndRemove(req.params.id)
         .then( (result)=> {
             res.status(200).json(result);
-            console.log('User is removed or not found');
+            console.log('Blog is removed or not found');
         })
         .catch(err => {
             console.log(err);
