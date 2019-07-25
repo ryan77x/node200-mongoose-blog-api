@@ -17,7 +17,8 @@ router.get('/:id', (req, res) => {
     User
         .findById(req.params.id)
         .then(user => {
-            res.status(200).json(user);
+            if (!user){ res.status(404).json({"Status": "Not found" }); }
+            else{ res.status(200).json(user); }
         })
         .catch(err => {
             console.log(err);
@@ -26,22 +27,22 @@ router.get('/:id', (req, res) => {
 
 router.post('/', (req, res) => {
     const newUser = new User(req.body);
+    
     newUser.save()
-    .then(result => {
-        res.status(200).json(result);
-        console.log('User is saved');
-    })
-    .catch(err => {
-        console.log(err);
-    });
+        .then(user => {
+            res.status(201).json(user);
+        })
+        .catch(err => {
+            console.log(err);
+        });
 });
 
 router.put('/:id', (req, res) => {
     User
         .findByIdAndUpdate(req.params.id, req.body)
-        .then( (result)=> {
-            res.status(200).json({"Status": "ok"});
-            console.log('User is updated');
+        .then( (user)=> {
+            if (!user){ res.status(404).json({"Status": "Not found" }); }
+            else{ res.status(204).json({"Status": "Update ok"}); }
         })
         .catch(err => {
             console.log(err);
@@ -51,9 +52,9 @@ router.put('/:id', (req, res) => {
 router.delete('/:id', (req, res) => {
     User
         .findByIdAndRemove(req.params.id)
-        .then( (result)=> {
-            res.status(200).json(result);
-            console.log('User is removed or not found');
+        .then( (user)=> {
+            if (!user){ res.status(404).json({"Status": "Not found" }); }
+            else{ res.status(200).json(user); }
         })
         .catch(err => {
             console.log(err);

@@ -1,14 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const Blog = require('../models/Blog');
+const User = require('../models/User');
 
 router.get('/featured', (req, res) => {
     Blog
         .find()
         .where('featured')
         .equals(true)
-        .then(blog => {
-            res.status(200).json(blog);
+        .then(blogs => {
+            res.status(200).json(blogs);
         })
         .catch(err => {
             console.log(err);
@@ -30,7 +31,8 @@ router.get('/:id', (req, res) => {
     Blog
         .findById(req.params.id)
         .then(blog => {
-            res.status(200).json(blog);
+            if (!blog){ res.status(404).json({"Status": "Not found" }); }
+            else{ res.status(200).json(blog); }
         })
         .catch(err => {
             console.log(err);
@@ -38,23 +40,40 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-    const newBlog = new Blog(req.body);
-    newBlog.save()
-    .then(result => {
-        res.status(200).json(result);
-        console.log('Blog is saved');
-    })
-    .catch(err => {
-        console.log(err);
-    });
+    let dbUser = null;
+
+    User
+        .findById(req.body.author)
+        .then(user => {
+            if (!user){ return  null;  }
+            else{
+                dbUser = user;
+                const newBlog = new Blog(req.body);
+                newBlog.author = user._id;
+
+                return newBlog.save();
+            }
+        })
+        .then(blog => {
+            if (!blog){ 
+                res.status(404).json({"Status": "User (author) reference not found" }); 
+            }
+            else{
+                dbUser.blogs.push(blog);
+                dbUser.save().then(() => res.status(201).json(blog));
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        });
 });
 
 router.put('/:id', (req, res) => {
     Blog
         .findByIdAndUpdate(req.params.id, req.body)
-        .then( (result)=> {
-            res.status(200).json({"Status": "ok"});
-            console.log('Blog is updated');
+        .then( (blog)=> {
+            if (!blog){ res.status(404).json({"Status": "Not found" }); }
+            else{ res.status(204).json({"Status": "Update ok"}); }
         })
         .catch(err => {
             console.log(err);
@@ -64,9 +83,9 @@ router.put('/:id', (req, res) => {
 router.delete('/:id', (req, res) => {
     Blog
         .findByIdAndRemove(req.params.id)
-        .then( (result)=> {
-            res.status(200).json(result);
-            console.log('Blog is removed or not found');
+        .then( (blog)=> {
+            if (!blog){ res.status(404).json({"Status": "Not found" }); }
+            else{ res.status(200).json(blog); }
         })
         .catch(err => {
             console.log(err);

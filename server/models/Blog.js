@@ -7,8 +7,7 @@ const BlogSchema = new Schema({
     article: { type: String, required: true},
     published: { type: Date, required: true},
     featured: { type: Boolean, required: true},
-    author: { type: Schema.Types.ObjectId, required: true},
-    author: { type: Schema.Types.ObjectId, ref: 'User' }
+    author: { type: Schema.Types.ObjectId, ref: 'User'}
 });
 
 module.exports = mongoose.model('Blog', BlogSchema);
