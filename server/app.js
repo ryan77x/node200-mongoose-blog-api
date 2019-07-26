@@ -3,7 +3,14 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 
-const url = 'mongodb://localhost:27017/my-blog';
+const dbURL = process.env.dbURL;
+const dbUserName = process.env.dbUserName;
+const dbName = process.env.dbName;
+const dbUserPassword = process.env.dbUserPassword;
+
+//const url = 'mongodb://localhost:27017/my-blog';
+const url = 'mongodb://' + dbUserName + ':' + dbUserPassword + dbURL + '/' + dbName;
+
 mongoose.connect(url, { useNewUrlParser: true });
 mongoose.Promise = Promise;
 
